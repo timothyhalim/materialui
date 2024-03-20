@@ -256,6 +256,13 @@ export default function App() {
           />
 
           <Button
+            type="reset"
+            variant="outlined"
+            sx={{marginRight:'1em'}}
+          >
+            Cancel
+          </Button>
+          <Button
             type="submit"
             variant="outlined"
             color="secondary"
