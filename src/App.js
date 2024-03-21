@@ -33,45 +33,53 @@ const useStyles = () => {
 export default function App() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [values, setValues] = useState({})
   const [formValues, setFormValues] = useState({
     name:{
       value:'',
+      default:'',
       error:false,
       required:true,
       errorMessage:'You must enter a name'
     },
     address:{
       value:'',
+      default:'',
       error:false,
       required:true,
       errorMessage:'You must enter an address'
     },
     age:{
       value:21,
+      default:21,
       error:false,
       required:false,
       errorMessage:'You must enter an age'
     },
     gender:{
       value:'Male',
+      default:'Male',
       error:false,
       required:false,
       errorMessage:'You must choose between Male of Female'
     },
     jobPosition:{
       value:'Intern',
+      default:'Intern',
       error:false,
       required:false,
       errorMessage:'You must fill your current job poition'
     },
     birthdate:{
       value:dayjs(new Date()),
+      default:dayjs(new Date()),
       error:false,
       required:false,
       errorMessage:'You must fill your birthdate'
     },
     career:{
       value:'',
+      default:'',
       error:false,
       required:false,
       errorMessage:'You must enter your career history'
@@ -84,7 +92,10 @@ export default function App() {
 
   const handleChange = (e) => {
     const {name, value} = e.target;
-    const error = value === '';
+    let error = value === '';
+    if (!formValues[name].required) {
+      error = false;
+    }
     setFormValues({
       ...formValues,
       [name]:{
@@ -97,7 +108,10 @@ export default function App() {
 
   const dateChange = (v) => {
     const {name, value} = {name:"birthdate", value:v.$d};
-    const error = isNaN(v.$d);
+    let error = isNaN(v.$d);
+    if (!formValues[name].required) {
+      error = false;
+    }
     setFormValues({
       ...formValues,
       [name]:{
@@ -114,20 +128,21 @@ export default function App() {
     const formFields = Object.keys(formValues);
     let newFormValues = {...formValues};
 
-
     for (let index = 0; index < formFields.length; index++) {
       const currentField = formFields[index];
       const currentValue = formValues[currentField].value;
-      let error = currentValue === '';
-      if (currentField === 'birthdate') {
-        error = isNaN(currentValue);
-      }
-      
-      newFormValues = {
-        ...newFormValues,
-        [currentField]:{
-          ...newFormValues[currentField],
-          error:error
+      if (formValues[currentField].required) {
+        let error = currentValue === '';
+        if (currentField === 'birthdate') {
+          error = isNaN(currentValue);
+        }
+        
+        newFormValues = {
+          ...newFormValues,
+          [currentField]:{
+            ...newFormValues[currentField],
+            error:error
+          }
         }
       }
     }
@@ -144,8 +159,23 @@ export default function App() {
     }
 
     if (goodToGo) {
+      let newValues = {};
+      for (const property in newFormValues) {
+        newValues[property] = newFormValues[property].value;
+      }
+      console.log(newValues);
+      setValues(newValues);
       setOpen(true);
     }
+  }
+
+  const reset = (e) => {
+    let newFormValues = {...formValues};
+    for (const property in newFormValues) {
+      newFormValues[property].value = formValues[property].default
+    }
+
+    setFormValues(newFormValues);
   }
 
   return (
@@ -259,8 +289,9 @@ export default function App() {
             type="reset"
             variant="outlined"
             sx={{marginRight:'1em'}}
+            onClick={reset}
           >
-            Cancel
+            Reset
           </Button>
           <Button
             type="submit"
@@ -280,10 +311,10 @@ export default function App() {
       >
         <Box sx={classes.modal}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Congratulations!
+            Submission complete!
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Submission complete!
+            {JSON.stringify(values)}
           </Typography>
         </Box>
       </Modal>
